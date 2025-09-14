@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamFlix - Age-Verified Video Platform</title>
+    <meta name="description" content="Demo streaming platform showcasing Tokn SDK age verification integration">
+    <meta name="keywords" content="streaming, age verification, tokn, oauth">
+    
+    <!-- Security headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/css/styles.css">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/js/tokn-sdk-demo.js" as="script">
+    <link rel="preload" href="/js/app.js" as="script">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">📺 StreamFlix</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#movies">Movies</a></li>
+                <li><a href="#series">TV Shows</a></li>
+                <li><a href="#documentaries">Documentaries</a></li>
+                <li><a href="#live">Live TV</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Welcome to StreamFlix</h1>
+                <p>Unlimited movies, TV shows, and documentaries across all age groups</p>
+                <p><small>This is a demo site showing Tokn SDK age verification integration</small></p>
+            </div>
+        </section>
+
+        <div class="container">
+            <!-- Verification Status Panel -->
+            <div class="verification-status">
+                <h4>🛡️ Age Verification Status</h4>
+                <div class="status-item">
+                    <span>Teen Content (16+):</span>
+                    <span class="status-badge unknown" id="status-16">Unknown</span>
+                </div>
+                <div class="status-item">
+                    <span>Mature Content (18+):</span>
+                    <span class="status-badge unknown" id="status-18">Unknown</span>
+                </div>
+                <div class="status-item">
+                    <span>Adult Content (21+):</span>
+                    <span class="status-badge unknown" id="status-21">Unknown</span>
+                </div>
+                <div class="tokn-verify-button" id="tokn-verify-button">
+                    <!-- Tokn SDK will inject button here -->
+                </div>
+            </div>
+
+            <!-- Demo Controls -->
+            <div class="demo-controls">
+                <h3>🎬 Demo Controls</h3>
+                <div class="control-buttons">
+                    <button class="btn btn-primary" onclick="checkAllAgeGates()">Check All Content Access</button>
+                    <button class="btn btn-secondary" onclick="simulateLogout()">Simulate Logout</button>
+                    <button class="btn btn-secondary" onclick="showConsoleOutput()">Show Console</button>
+                    <button class="btn btn-secondary" onclick="refreshStatus()">Refresh Status</button>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <!-- General Content -->
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        🎭
+                        <div class="age-rating" style="background: #51cf66;">G</div>
+                        <div class="video-duration">1h 45m</div>
+                        <div class="play-button">▶</div>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">Family Adventure</div>
+                        <div class="video-meta">2024 • Family • Comedy</div>
+                        <div class="genre-tag">Family</div>
+                        <div class="genre-tag">Adventure</div>
+                        <div class="video-description">
+                            A heartwarming family adventure about friendship and courage. Perfect for all ages with positive messages and beautiful cinematography.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 16+ Content -->
+                <div class="video-card age-gate" data-min-age="16" id="content-16">
+                    <div class="age-gate-content">
+                        <div class="video-thumbnail">
+                            🎬
+                            <div class="age-rating" style="background: #f59e0b;">PG-13</div>
+                            <div class="video-duration">2h 10m</div>
+                            <div class="play-button">▶</div>
+                        </div>
+                        <div class="age-gate-overlay">
+                            <div class="age-gate-icon">🔒</div>
+                            <h3>Teen Content (16+)</h3>
+                            <p>Age verification required</p>
+                        </div>
+                        <div class="video-info">
+                            <div class="video-title">Teenage Drama Series</div>
+                            <div class="video-meta">2024 • Drama • Romance</div>
+                            <div class="genre-tag">Teen Drama</div>
+                            <div class="genre-tag">Romance</div>
+                            <div class="video-description">
+                                Coming-of-age drama with mature themes about relationships, identity, and growing up. Contains mild language and suggestive content.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 18+ Content -->
+                <div class="video-card age-gate" data-min-age="18" id="content-18">
+                    <div class="age-gate-content">
+                        <div class="video-thumbnail">
+                            🎭
+                            <div class="age-rating" style="background: #e50914;">R</div>
+                            <div class="video-duration">1h 55m</div>
+                            <div class="play-button">▶</div>
+                        </div>
+                        <div class="age-gate-overlay">
+                            <div class="age-gate-icon">🔞</div>
+                            <h3>Mature Content (18+)</h3>
+                            <p>Age verification required</p>
+                        </div>
+                        <div class="video-info">
+                            <div class="video-title">Dark Psychological Thriller</div>
+                            <div class="video-meta">2024 • Thriller • Crime</div>
+                            <div class="genre-tag">Psychological</div>
+                            <div class="genre-tag">Violence</div>
+                            <div class="video-description">
+                                Intense psychological thriller with graphic violence, strong language, and disturbing themes. Not suitable for viewers under 18.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 21+ Content -->
+                <div class="video-card age-gate" data-min-age="21" id="content-21">
+                    <div class="age-gate-content">
+                        <div class="video-thumbnail">
+                            🍷
+                            <div class="age-rating" style="background: #dc2626;">21+</div>
+                            <div class="video-duration">45m</div>
+                            <div class="play-button">▶</div>
+                        </div>
+                        <div class="age-gate-overlay">
+                            <div class="age-gate-icon">🔞</div>
+                            <h3>Adult Content (21+)</h3>
+                            <p>Age verification required</p>
+                        </div>
+                        <div class="video-info">
+                            <div class="video-title">Wine & Spirits Documentary</div>
+                            <div class="video-meta">2024 • Documentary • Lifestyle</div>
+                            <div class="genre-tag">Alcohol</div>
+                            <div class="genre-tag">Educational</div>
+                            <div class="video-description">
+                                Educational documentary about wine making and spirits tasting. Features detailed alcohol consumption and is intended for viewers 21 and older.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Another General Content -->
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        🌍
+                        <div class="age-rating" style="background: #51cf66;">G</div>
+                        <div class="video-duration">50m</div>
+                        <div class="play-button">▶</div>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">Nature Documentary</div>
+                        <div class="video-meta">2024 • Documentary • Nature</div>
+                        <div class="genre-tag">Educational</div>
+                        <div class="genre-tag">Nature</div>
+                        <div class="video-description">
+                            Stunning wildlife documentary showcasing the beauty of our planet. Educational content suitable for the whole family.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Another 18+ Content -->
+                <div class="video-card age-gate" data-min-age="18" id="content-18-2">
+                    <div class="age-gate-content">
+                        <div class="video-thumbnail">
+                            ⚔️
+                            <div class="age-rating" style="background: #e50914;">R</div>
+                            <div class="video-duration">2h 30m</div>
+                            <div class="play-button">▶</div>
+                        </div>
+                        <div class="age-gate-overlay">
+                            <div class="age-gate-icon">🔞</div>
+                            <h3>Mature Content (18+)</h3>
+                            <p>Age verification required</p>
+                        </div>
+                        <div class="video-info">
+                            <div class="video-title">War Drama Epic</div>
+                            <div class="video-meta">2024 • War • Drama</div>
+                            <div class="genre-tag">War</div>
+                            <div class="genre-tag">Graphic Violence</div>
+                            <div class="video-description">
+                                Epic war drama depicting the harsh realities of conflict. Contains intense battle scenes, graphic violence, and mature themes.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SDK Integration Info -->
+                <div class="video-card" style="background: rgba(229, 9, 20, 0.1); border: 1px solid #e50914;">
+                    <div class="video-thumbnail" style="background: linear-gradient(45deg, #1e3c72, #2a5298);">
+                        🔧
+                        <div class="age-rating" style="background: #e50914;">SDK</div>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">Tokn SDK Integration</div>
+                        <div class="video-meta">2024 • Technical Demo</div>
+                        <div class="genre-tag">OAuth 2.0</div>
+                        <div class="genre-tag">Age Verification</div>
+                        <div class="video-description">
+                            This demo shows how streaming platforms integrate with Tokn for seamless age verification. Content is dynamically unlocked based on verified age flags without sharing personal information.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Console Output -->
+            <div class="console-output" id="console-output" style="display: none;">
+                <div>🖥️ Console Output:</div>
+                <div id="console-log"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Overlay for popup simulation -->
+    <div class="overlay" id="overlay">
+        <div class="modal">
+            <h3>🛡️ Tokn Age Verification</h3>
+            <p>This would normally open the Tokn verification popup.</p>
+            <p><strong>For demo purposes:</strong> We'll simulate the verification process.</p>
+            <div style="margin: 1rem 0;">
+                <button class="btn btn-primary" onclick="simulateVerification(true)">Simulate Success (21+)</button>
+                <button class="btn btn-secondary" onclick="simulateVerification(false)">Simulate Failure</button>
+            </div>
+            <button class="btn btn-secondary" onclick="closeOverlay()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/tokn-sdk-demo.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>

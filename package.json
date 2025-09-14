@@ -1,0 +1,45 @@
+{
+    "name": "tokn-client-demo",
+    "version": "1.0.0",
+    "description": "StreamFlix - Demo application showcasing Tokn SDK integration for age-verified video content",
+    "main": "server/server.js",
+    "scripts": {
+      "start": "NODE_ENV=production node server/server.js",
+      "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+      "server:dev": "cd server && nodemon server.js",
+      "client:dev": "live-server --port=8080 --host=localhost --open=/public/",
+      "build": "./scripts/build.sh",
+      "deploy": "./scripts/deploy.sh",
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+      "tokn",
+      "age-verification",
+      "oauth",
+      "streaming",
+      "demo"
+    ],
+    "author": "Your Company",
+    "license": "MIT",
+    "dependencies": {
+      "express": "^4.18.2",
+      "cors": "^2.8.5",
+      "helmet": "^7.0.0",
+      "morgan": "^1.10.0",
+      "dotenv": "^16.3.1",
+      "compression": "^1.7.4"
+    },
+    "devDependencies": {
+      "nodemon": "^3.0.1",
+      "concurrently": "^8.2.0",
+      "live-server": "^1.2.2"
+    },
+    "engines": {
+      "node": ">=16.0.0",
+      "npm": ">=8.0.0"
+    },
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/your-org/tokn-client-demo.git"
+    }
+  }
