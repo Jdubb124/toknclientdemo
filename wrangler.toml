@@ -1,0 +1,11 @@
+name = "tokn-client-demo"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "public"
+
+[env.production.vars]
+ENVIRONMENT = "production"
+
+# Set these as secrets (not in this file)
+# TOKN_CLIENT_ID = "your-client-id"
+# TOKN_CLIENT_SECRET = "your-client-secret" 
+# TOKN_API_URL = "https://your-tokn-mvp.herokuapp.com"

@@ -1,36 +1,57 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+## Combined .gitignore
 
 # dependencies
-/node_modules
+node_modules/
+.npm/
+.pnpm-store/
 /.pnp
 .pnp.js
 
-# testing
-/coverage
+# package managers locks
+yarn.lock
+pnpm-lock.yaml
+package-lock.json
 
-# next.js
-/.next/
+# testing / coverage
+coverage/
+
+# next.js / output
+.next/
 /out/
 
-# production
+# production / build
+build/
 /build
+dist/
 
-# misc
-.DS_Store
-*.pem
-
-# debug
+# logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
 .env
+.env.*
+.env*.local
 
-# vercel
+# vercel / netlify
 .vercel
+.netlify/
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# OS/Editor
+.DS_Store
+*.swp
+.vscode/
+.idea/
+
+# Docker
+**/.docker*
+
+# Misc
+*.pem
+*.local
