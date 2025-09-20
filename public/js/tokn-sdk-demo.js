@@ -6,7 +6,7 @@
 class ToknSDKDemo {
     constructor(config) {
         this.config = {
-            clientId: 'demo-client-123', // Your actual OAuth client ID from database
+            clientId: 'streamflix-demo-client', // Your actual OAuth client ID from database
             apiUrl: 'https://tokn-backend-505250569367.us-east5.run.app',
             authUrl: 'https://toknmvp.web.app',
             redirectUri: window.location.origin + '/api/auth/callback',
@@ -64,23 +64,28 @@ class ToknSDKDemo {
     /**
      * Start REAL OAuth verification flow
      */
-    startVerification() {
+    async startVerification() {
         this.logToConsole('🚀 Starting REAL Tokn OAuth verification...');
         
-        // Generate PKCE challenge
-        const codeVerifier = this.generateCodeVerifier();
-        const codeChallenge = this.generateCodeChallenge(codeVerifier);
-        
-        // Store code verifier for token exchange
-        localStorage.setItem('tokn_code_verifier', codeVerifier);
-        
-        // Build OAuth authorization URL
-        const authUrl = this.buildAuthUrl(codeChallenge);
-        
-        this.logToConsole(`🔗 Opening OAuth popup: ${this.config.apiUrl}`);
-        
-        // Open OAuth popup
-        this.openOAuthPopup(authUrl);
+        try {
+            // Generate PKCE challenge
+            const codeVerifier = this.generateCodeVerifier();
+            const codeChallenge = await this.generateCodeChallenge(codeVerifier);
+            
+            // Store code verifier for token exchange
+            localStorage.setItem('tokn_code_verifier', codeVerifier);
+            
+            // Build OAuth authorization URL
+            const authUrl = this.buildAuthUrl(codeChallenge);
+            
+            this.logToConsole(`🔗 Opening OAuth popup: ${this.config.authUrl}`);
+            
+            // Open OAuth popup
+            this.openOAuthPopup(authUrl);
+        } catch (error) {
+            this.logToConsole(`❌ Failed to start verification: ${error.message}`);
+            this.handleVerificationError(error.message);
+        }
     }
 
     /**
@@ -126,7 +131,8 @@ class ToknSDKDemo {
             code_challenge_method: 'S256'
         });
         
-        return `${this.config.apiUrl}/api/oauth/authorize?${params.toString()}`;
+        // Use the authUrl instead of apiUrl for the authorization endpoint
+        return `${this.config.authUrl}/api/oauth/authorize?${params.toString()}`;
     }
 
     /**
@@ -154,8 +160,8 @@ class ToknSDKDemo {
 
         // Listen for popup messages
         const messageHandler = (event) => {
-            // Verify origin for security
-            if (event.origin !== this.config.apiUrl) return;
+            // Verify origin for security - check both authUrl and apiUrl
+            if (event.origin !== this.config.authUrl && event.origin !== this.config.apiUrl) return;
 
             if (event.data.type === 'TOKN_OAUTH_SUCCESS') {
                 window.removeEventListener('message', messageHandler);

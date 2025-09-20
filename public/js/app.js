@@ -118,14 +118,14 @@ function setupToknVerifyButton() {
 /**
  * Handle verify button clicks
  */
-function handleVerifyButtonClick(event) {
+async function handleVerifyButtonClick(event) {
     event.preventDefault();
     
     console.log('🛡️ Age verification button clicked');
     toknDemo.logToConsole('🎯 User initiated age verification flow');
     
     try {
-        toknDemo.startVerification();
+        await toknDemo.startVerification();
     } catch (error) {
         console.error('Error starting verification:', error);
         showNotification('Failed to start verification. Please try again.', 'error');
@@ -281,9 +281,9 @@ function handleVideoPlay(card) {
         toknDemo.logToConsole(`🔒 Blocked: ${title} requires ${minAge}+ verification`);
         
         // Offer verification
-        setTimeout(() => {
+        setTimeout(async () => {
             if (confirm(`"${title}" requires age verification (${minAge}+).\n\nWould you like to verify your age now?`)) {
-                toknDemo.startVerification();
+                await toknDemo.startVerification();
             }
         }, 500);
         
@@ -349,7 +349,7 @@ function setupModalHandlers() {
  * Setup keyboard shortcuts for power users
  */
 function setupKeyboardShortcuts() {
-    document.addEventListener('keydown', (event) => {
+    document.addEventListener('keydown', async (event) => {
         // Don't trigger if user is typing in an input
         if (event.target.tagName === 'INPUT' || 
             event.target.tagName === 'TEXTAREA' || 
@@ -366,7 +366,7 @@ function setupKeyboardShortcuts() {
             case 'v':
                 event.preventDefault();
                 if (toknDemo) {
-                    toknDemo.startVerification();
+                    await toknDemo.startVerification();
                     showNotification('Keyboard shortcut: Age Verification', 'info');
                 }
                 break;
