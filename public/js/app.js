@@ -20,6 +20,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    setTimeout(() => {
+        const verifyButton = document.querySelector('#tokn-verify-button button');
+        if (verifyButton) {
+            verifyButton.addEventListener('click', () => {
+                toknDemo.startVerification();
+            });
+        }
+    }, 200);
+
     // Set up video card click handlers
     setupVideoCardHandlers();
     
