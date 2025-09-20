@@ -102,21 +102,3 @@ export async function onRequest(context) {
       });
     }
   }
-  
-  // Updated functions/api/config.js
-  // Return real Tokn MVP configuration
-  
-  export async function onRequest(context) {
-    return new Response(JSON.stringify({
-      toknClientId: 'demo-client-123', // Your actual OAuth client ID
-      toknApiUrl: context.env.TOKN_MVP_URL || 'http://localhost:5001',
-      environment: 'production',
-      demoMode: false, // Now using real backend!
-      redirectUri: `${new URL(context.request.url).origin}/api/auth/callback`
-    }), {
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      }
-    });
-  }
