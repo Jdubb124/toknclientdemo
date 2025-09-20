@@ -8,4 +8,5 @@ ENVIRONMENT = "production"
 # Set these as secrets (not in this file)
 # TOKN_CLIENT_ID = "your-client-id"
 # TOKN_CLIENT_SECRET = "your-client-secret" 
-# TOKN_API_URL = "https://your-tokn-mvp.herokuapp.com"
+# TOKN_API_URL = "https://tokn-backend-505250569367.us-east5.run.app"
+# TOKN_AUTH_URL = "https://toknmvp.web.app"

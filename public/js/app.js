@@ -1,10 +1,9 @@
 /**
- * StreamFlix Demo Application - Rewritten with Modern Event Handlers
+ * StreamFlix Demo Application - Updated for Official TOKN SDK Integration
  * Main application logic for the Tokn SDK demo
  */
 
 // Application state
-let toknDemo;
 let isInitialized = false;
 
 /**
@@ -13,8 +12,8 @@ let isInitialized = false;
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🎬 StreamFlix Demo initializing...');
     
-    // Initialize Tokn SDK Demo
-    initializeToknDemo();
+    // Wait for TOKN integration to be ready
+    waitForToknIntegration();
     
     // Setup all event handlers
     setupEventHandlers();
@@ -29,16 +28,40 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
- * Initialize the Tokn SDK Demo instance
+ * Wait for TOKN integration to be ready
  */
-function initializeToknDemo() {
-    toknDemo = new ToknSDKDemo({
-        clientId: 'streamflix-demo-client',
-        onVerified: handleVerificationSuccess,
-        onError: handleVerificationError
-    });
+function waitForToknIntegration() {
+    let attempts = 0;
+    const maxAttempts = 100; // 10 seconds max wait
     
-    console.log('🛡️ Tokn SDK Demo instance created');
+    const checkIntegration = () => {
+        if (window.toknIntegration && window.toknIntegration.isInitialized) {
+            console.log('🛡️ TOKN Integration ready');
+            setupIntegrationCallbacks();
+        } else if (attempts < maxAttempts) {
+            attempts++;
+            setTimeout(checkIntegration, 100);
+        } else {
+            console.warn('⚠️ TOKN Integration not ready after 10 seconds');
+        }
+    };
+    
+    checkIntegration();
+}
+
+/**
+ * Setup callbacks for TOKN integration
+ */
+function setupIntegrationCallbacks() {
+    if (!window.toknIntegration) return;
+    
+    // Set up global callbacks
+    window.streamFlixDemo = {
+        onVerificationSuccess: handleVerificationSuccess,
+        onVerificationError: handleVerificationError
+    };
+    
+    console.log('🔗 TOKN Integration callbacks configured');
 }
 
 /**
@@ -46,11 +69,12 @@ function initializeToknDemo() {
  */
 function handleVerificationSuccess(data) {
     console.log('StreamFlix: Age verification successful!', data);
-    showNotification('Age verification successful! Video content unlocked.', 'success');
     
     // Log detailed verification info
-    toknDemo.logToConsole('🎉 Verification successful - content unlocked!');
-    toknDemo.logToConsole(`✅ Age flags received: 16+:${data.ageFlags.is_16_plus}, 18+:${data.ageFlags.is_18_plus}, 21+:${data.ageFlags.is_21_plus}`);
+    if (window.toknIntegration) {
+        window.toknIntegration.logToConsole('🎉 Verification successful - content unlocked!');
+        window.toknIntegration.logToConsole(`✅ Age flags received: 16+:${data.ageFlags.is_16_plus}, 18+:${data.ageFlags.is_18_plus}, 21+:${data.ageFlags.is_21_plus}`);
+    }
 }
 
 /**
@@ -58,8 +82,10 @@ function handleVerificationSuccess(data) {
  */
 function handleVerificationError(error) {
     console.error('StreamFlix: Age verification failed!', error);
-    showNotification('Age verification failed. Please try again.', 'error');
-    toknDemo.logToConsole(`❌ Verification failed: ${error}`);
+    
+    if (window.toknIntegration) {
+        window.toknIntegration.logToConsole(`❌ Verification failed: ${error.description || error}`);
+    }
 }
 
 /**
@@ -86,11 +112,13 @@ function setupEventHandlers() {
  * Setup Tokn verification button event handler
  */
 function setupToknVerifyButton() {
+    // The TOKN SDK will automatically render the button
+    // We just need to wait for it and attach our event handler
     let attempts = 0;
     const maxAttempts = 50; // 5 seconds max wait time
     
     const attachVerifyButtonListener = () => {
-        const verifyButton = document.querySelector('#tokn-verify-button button');
+        const verifyButton = document.querySelector('#tokn-verify-button button, #tokn-verify-btn');
         
         if (verifyButton) {
             // Remove any existing listeners to prevent duplicates
@@ -100,14 +128,18 @@ function setupToknVerifyButton() {
             verifyButton.addEventListener('click', handleVerifyButtonClick);
             
             console.log('✅ Verify button event listener attached');
-            toknDemo.logToConsole('🛡️ Verify button ready for interaction');
+            if (window.toknIntegration) {
+                window.toknIntegration.logToConsole('🛡️ Verify button ready for interaction');
+            }
             
         } else if (attempts < maxAttempts) {
             attempts++;
             setTimeout(attachVerifyButtonListener, 100);
         } else {
             console.warn('⚠️ Verify button not found after 5 seconds');
-            toknDemo.logToConsole('⚠️ Verify button initialization timeout');
+            if (window.toknIntegration) {
+                window.toknIntegration.logToConsole('⚠️ Verify button initialization timeout');
+            }
         }
     };
     
@@ -122,13 +154,9 @@ async function handleVerifyButtonClick(event) {
     event.preventDefault();
     
     console.log('🛡️ Age verification button clicked');
-    toknDemo.logToConsole('🎯 User initiated age verification flow');
-    
-    try {
-        await toknDemo.startVerification();
-    } catch (error) {
-        console.error('Error starting verification:', error);
-        showNotification('Failed to start verification. Please try again.', 'error');
+    if (window.toknIntegration) {
+        window.toknIntegration.logToConsole('🎯 User initiated age verification flow');
+        await window.toknIntegration.startVerification();
     }
 }
 
@@ -165,43 +193,20 @@ function setupDemoControlButtons() {
 /**
  * Handle check all age gates action
  */
-function handleCheckAllAgeGates() {
-    if (!toknDemo) return;
+async function handleCheckAllAgeGates() {
+    if (!window.toknIntegration) return;
     
-    toknDemo.logToConsole('🔍 Checking all video content access levels...');
-    
-    const contentTypes = [
-        { age: 16, type: 'Teen Drama & Romance' },
-        { age: 18, type: 'Mature Thrillers & War Films' },
-        { age: 21, type: 'Adult Documentaries & Lifestyle' }
-    ];
-    
-    let accessibleCount = 0;
-    
-    contentTypes.forEach(content => {
-        const isVerified = toknDemo.isVerified(content.age);
-        const status = isVerified ? 'ACCESSIBLE' : 'BLOCKED';
-        const emoji = isVerified ? '✅' : '🔒';
-        
-        toknDemo.logToConsole(`${emoji} ${content.age}+ content (${content.type}): ${status}`);
-        
-        if (isVerified) accessibleCount++;
-    });
-    
-    const message = `Content access check complete: ${accessibleCount}/${contentTypes.length} age categories accessible`;
-    showNotification(message, 'info');
-    toknDemo.logToConsole(`📊 Summary: ${message}`);
+    await window.toknIntegration.checkAllAgeGates();
 }
 
 /**
  * Handle simulate logout action
  */
-function handleSimulateLogout() {
-    if (!toknDemo) return;
+async function handleSimulateLogout() {
+    if (!window.toknIntegration) return;
     
     console.log('🚪 Simulating logout...');
-    toknDemo.logout();
-    showNotification('Logged out - all age-restricted content is now locked', 'info');
+    await window.toknIntegration.logout();
 }
 
 /**
@@ -224,14 +229,19 @@ function handleShowConsole() {
 /**
  * Handle refresh status action
  */
-function handleRefreshStatus() {
-    if (!toknDemo) return;
+async function handleRefreshStatus() {
+    if (!window.toknIntegration) return;
     
     console.log('🔄 Refreshing verification status...');
-    toknDemo.updateStatusDisplay();
-    toknDemo.checkAgeGates();
-    toknDemo.logToConsole('🔄 Age verification status refreshed');
-    showNotification('Status refreshed', 'info');
+    const status = await window.toknIntegration.getStatus();
+    
+    if (status.verified && status.ageFlags) {
+        window.toknIntegration.updateStatusDisplay(status.ageFlags);
+        window.toknIntegration.updateAgeGates(status.ageFlags);
+    }
+    
+    window.toknIntegration.logToConsole('🔄 Age verification status refreshed');
+    window.toknIntegration.showNotification('Status refreshed', 'info');
 }
 
 /**
@@ -265,8 +275,8 @@ function setupVideoCardHandlers() {
 /**
  * Handle video play button clicks
  */
-function handleVideoPlay(card) {
-    if (!toknDemo) return;
+async function handleVideoPlay(card) {
+    if (!window.toknIntegration) return;
     
     const minAge = parseInt(card.getAttribute('data-min-age'));
     const title = card.querySelector('.video-title').textContent;
@@ -274,23 +284,23 @@ function handleVideoPlay(card) {
     
     console.log(`🎬 Attempting to play: ${title} (${rating})`);
     
-    if (minAge && !toknDemo.isVerified(minAge)) {
+    if (minAge && !(await window.toknIntegration.isVerified(minAge))) {
         // Content is age-restricted and user not verified
         const message = `Age verification required for ${minAge}+ content`;
-        showNotification(message, 'error');
-        toknDemo.logToConsole(`🔒 Blocked: ${title} requires ${minAge}+ verification`);
+        window.toknIntegration.showNotification(message, 'error');
+        window.toknIntegration.logToConsole(`🔒 Blocked: ${title} requires ${minAge}+ verification`);
         
         // Offer verification
         setTimeout(async () => {
             if (confirm(`"${title}" requires age verification (${minAge}+).\n\nWould you like to verify your age now?`)) {
-                await toknDemo.startVerification();
+                await window.toknIntegration.startVerification();
             }
         }, 500);
         
     } else {
         // Content is accessible
-        showNotification(`Playing: ${title}`, 'success');
-        toknDemo.logToConsole(`▶️ Started playing: ${title} (${rating})`);
+        window.toknIntegration.showNotification(`Playing: ${title}`, 'success');
+        window.toknIntegration.logToConsole(`▶️ Started playing: ${title} (${rating})`);
         simulateVideoPlayback(title, rating);
     }
 }
@@ -365,22 +375,26 @@ function setupKeyboardShortcuts() {
         switch(event.key.toLowerCase()) {
             case 'v':
                 event.preventDefault();
-                if (toknDemo) {
-                    await toknDemo.startVerification();
-                    showNotification('Keyboard shortcut: Age Verification', 'info');
+                if (window.toknIntegration) {
+                    await window.toknIntegration.startVerification();
+                    window.toknIntegration.showNotification('Keyboard shortcut: Age Verification', 'info');
                 }
                 break;
                 
             case 'c':
                 event.preventDefault();
                 handleCheckAllAgeGates();
-                showNotification('Keyboard shortcut: Check Access', 'info');
+                if (window.toknIntegration) {
+                    window.toknIntegration.showNotification('Keyboard shortcut: Check Access', 'info');
+                }
                 break;
                 
             case 'l':
                 event.preventDefault();
                 handleSimulateLogout();
-                showNotification('Keyboard shortcut: Logout', 'info');
+                if (window.toknIntegration) {
+                    window.toknIntegration.showNotification('Keyboard shortcut: Logout', 'info');
+                }
                 break;
                 
             case '`':
@@ -393,7 +407,9 @@ function setupKeyboardShortcuts() {
             case 'r':
                 event.preventDefault();
                 handleRefreshStatus();
-                showNotification('Keyboard shortcut: Refresh Status', 'info');
+                if (window.toknIntegration) {
+                    window.toknIntegration.showNotification('Keyboard shortcut: Refresh Status', 'info');
+                }
                 break;
                 
             case '?':
@@ -428,11 +444,11 @@ function setupDocumentClickHandlers() {
 function setupUserInterface() {
     // Add initial demo logging with delay to ensure DOM is ready
     setTimeout(() => {
-        if (toknDemo) {
-            toknDemo.logToConsole('🎬 StreamFlix demo loaded - 6 videos available');
-            toknDemo.logToConsole('🔒 Age-gated content: 4 videos require verification');
-            toknDemo.logToConsole('🛡️ Click "Verify Age with Tokn" to unlock restricted content');
-            toknDemo.logToConsole('⌨️ Keyboard shortcuts: V=Verify, C=Check, L=Logout, `=Console, R=Refresh, ?=Help');
+        if (window.toknIntegration) {
+            window.toknIntegration.logToConsole('🎬 StreamFlix demo loaded - 6 videos available');
+            window.toknIntegration.logToConsole('🔒 Age-gated content: 4 videos require verification');
+            window.toknIntegration.logToConsole('🛡️ Click "Verify Age with Tokn" to unlock restricted content');
+            window.toknIntegration.logToConsole('⌨️ Keyboard shortcuts: V=Verify, C=Check, L=Logout, `=Console, R=Refresh, ?=Help');
         }
     }, 1000);
     
@@ -479,8 +495,8 @@ Esc - Close Modal/Overlay
     
     alert(helpMessage);
     
-    if (toknDemo) {
-        toknDemo.logToConsole('❓ Keyboard shortcuts help displayed');
+    if (window.toknIntegration) {
+        window.toknIntegration.logToConsole('❓ Keyboard shortcuts help displayed');
     }
 }
 
@@ -546,9 +562,16 @@ function simulateVideoPlayback(title, rating) {
 }
 
 /**
- * Enhanced notification system
+ * Enhanced notification system (fallback if TOKN integration not available)
  */
 function showNotification(message, type = 'info') {
+    // Use TOKN integration notification if available
+    if (window.toknIntegration && window.toknIntegration.showNotification) {
+        window.toknIntegration.showNotification(message, type);
+        return;
+    }
+    
+    // Fallback notification system
     const notification = document.createElement('div');
     notification.className = 'notification';
     
@@ -637,9 +660,14 @@ function simulateVerification(success) {
             userId: 'demo-user-' + Math.random().toString(36).substr(2, 9)
         };
         
-        toknDemo.handleVerificationSuccess(mockData);
+        // This is for demo purposes - in real implementation, this would come from TOKN SDK
+        if (window.toknIntegration) {
+            window.toknIntegration.handleVerificationSuccess(mockData);
+        }
     } else {
-        toknDemo.handleVerificationError('User cancelled verification');
+        if (window.toknIntegration) {
+            window.toknIntegration.handleVerificationError('User cancelled verification');
+        }
     }
 }
 
@@ -651,7 +679,7 @@ window.closeOverlay = closeOverlay;
  * Utility function to check if app is initialized
  */
 function ensureInitialized() {
-    if (!isInitialized || !toknDemo) {
+    if (!isInitialized || !window.toknIntegration) {
         console.warn('⚠️ App not fully initialized yet');
         return false;
     }
@@ -661,7 +689,7 @@ function ensureInitialized() {
 // Export for debugging in console
 if (typeof window !== 'undefined') {
     window.streamFlixDemo = {
-        toknDemo: () => toknDemo,
+        toknIntegration: () => window.toknIntegration,
         checkAllAgeGates: handleCheckAllAgeGates,
         simulateLogout: handleSimulateLogout,
         showConsole: handleShowConsole,
