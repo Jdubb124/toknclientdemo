@@ -87,9 +87,9 @@ export async function onRequest(context) {
       return new Response(JSON.stringify({
         verified: true,
         age_flags: {
-          is_16_plus: userData.is_16_plus || false,
-          is_18_plus: userData.is_18_plus || false,
-          is_21_plus: userData.is_21_plus || false
+          is_16_plus: userData.is_16_plus || null,
+          is_18_plus: userData.is_18_plus || null,
+          is_21_plus: userData.is_21_plus || null
         },
         verification_date: new Date().toISOString(),
         expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(), // 15 minutes from now
