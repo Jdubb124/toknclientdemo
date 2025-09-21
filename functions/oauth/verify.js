@@ -8,14 +8,14 @@ export async function onRequest(context) {
         status: 204,
         headers: {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, OPTIONS',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
           'Access-Control-Allow-Headers': 'Authorization, Content-Type',
           'Access-Control-Max-Age': '86400'
         }
       });
     }
   
-    if (context.request.method !== 'GET') {
+    if (context.request.method !== 'GET' && context.request.method !== 'POST') {
       return new Response('Method not allowed', { status: 405 });
     }
 
@@ -51,7 +51,7 @@ export async function onRequest(context) {
       console.log('Forwarding verify request to TOKN MVP:', toknMvpUrl);
       
       const verifyResponse = await fetch(`${toknMvpUrl}/api/oauth/verify`, {
-        method: 'GET',
+        method: context.request.method, // Use same method as incoming request
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
