@@ -91,11 +91,14 @@ app.get('/api/health', (req, res) => {
  * Configuration endpoint for frontend
  */
 app.get('/api/config', (req, res) => {
+    const toknMvpUrl = process.env.TOKN_MVP_URL || 'https://tokn-backend-505250569367.us-east5.run.app';
+    
     res.json({
-        toknClientId: process.env.TOKN_CLIENT_ID || 'streamflix-demo-client',
-        toknApiUrl: process.env.TOKN_API_URL || 'https://api.tokn.co',
+        toknClientId: process.env.TOKN_CLIENT_ID || 'demo-client-123',
+        toknApiUrl: toknMvpUrl,
+        toknAuthUrl: process.env.TOKN_AUTH_URL || 'https://tokn-frontend-505250569367.us-east5.run.app',
         environment: NODE_ENV,
-        demoMode: NODE_ENV === 'development'
+        demoMode: false // Now using real backend!
     });
 });
 
@@ -105,81 +108,138 @@ app.get('/api/config', (req, res) => {
  */
 app.post('/api/auth/callback', async (req, res) => {
     try {
-        const { code, state } = req.body;
+        const { code, code_verifier, client_id } = req.body;
         
-        if (!code || !state) {
+        if (!code || !code_verifier || !client_id) {
             return res.status(400).json({
-                error: 'Missing required parameters'
+                error: 'Missing required parameters',
+                required: ['code', 'code_verifier', 'client_id']
             });
         }
         
-        // In production, you would:
-        // 1. Validate the state parameter
-        // 2. Exchange the code for an access token
-        // 3. Fetch user's age verification status
-        // 4. Return the age flags
+        console.log('🔄 Starting real token exchange with Tokn MVP...');
+        console.log('Code:', code.substring(0, 10) + '...');
+        console.log('Client ID:', client_id);
         
-        // For demo purposes, simulate the token exchange
-        const mockAgeFlags = await simulateTokenExchange(code);
+        // Exchange code for access token with your REAL Tokn MVP
+        const tokenData = await exchangeCodeForToken(code, code_verifier, client_id);
+        
+        // Get age verification data using the access token
+        const ageVerificationData = await fetchAgeVerification(tokenData.access_token);
+        
+        console.log('✅ Real age verification successful!');
+        console.log('Age flags:', ageVerificationData.ageFlags);
         
         res.json({
             verified: true,
-            ageFlags: mockAgeFlags,
-            verificationDate: new Date().toISOString()
+            ageFlags: ageVerificationData.ageFlags,
+            verificationDate: new Date().toISOString(),
+            source: 'tokn-mvp',
+            userId: ageVerificationData.userId
         });
         
     } catch (error) {
-        console.error('OAuth callback error:', error);
+        console.error('❌ OAuth callback error:', error);
         res.status(500).json({
-            error: 'Internal server error',
-            message: error.message
+            error: 'OAuth exchange failed',
+            message: error.message,
+            details: error.details || 'No additional details'
         });
     }
 });
 
 /**
- * Simulate token exchange with Tokn API
- * In production, this would make actual API calls to Tokn
+ * Exchange authorization code for access token - REAL IMPLEMENTATION
  */
-async function simulateTokenExchange(code) {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+async function exchangeCodeForToken(code, codeVerifier, clientId) {
+    const toknMvpUrl = process.env.TOKN_MVP_URL || 'https://tokn-backend-505250569367.us-east5.run.app';
     
-    // In production, this would be:
-    /*
-    const response = await fetch(`${process.env.TOKN_API_URL}/oauth/token`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Basic ${Buffer.from(`${process.env.TOKN_CLIENT_ID}:${process.env.TOKN_CLIENT_SECRET}`).toString('base64')}`
-        },
-        body: JSON.stringify({
-            grant_type: 'authorization_code',
-            code: code,
-            redirect_uri: process.env.TOKN_REDIRECT_URI
-        })
-    });
+    console.log('🔗 Calling Tokn MVP token endpoint:', `${toknMvpUrl}/api/oauth/token`);
     
-    const tokenData = await response.json();
-    
-    // Then fetch age verification status
-    const ageResponse = await fetch(`${process.env.TOKN_API_URL}/api/v1/age-verification`, {
-        headers: {
-            'Authorization': `Bearer ${tokenData.access_token}`
+    try {
+        const response = await fetch(`${toknMvpUrl}/api/oauth/token`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // Note: For public clients (like demos), we don't use client_secret
+                // PKCE provides the security instead
+            },
+            body: JSON.stringify({
+                grant_type: 'authorization_code',
+                code: code,
+                client_id: clientId,
+                code_verifier: codeVerifier
+                // redirect_uri might be needed depending on your OAuth implementation
+            })
+        });
+        
+        console.log('📡 Token exchange response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Token exchange failed:', errorText);
+            throw new Error(`Token exchange failed: ${response.status} - ${errorText}`);
         }
-    });
-    
-    const ageData = await ageResponse.json();
-    return ageData.age_flags;
-    */
-    
-    // For demo, return mock data
-    return {
-        is_16_plus: true,
-        is_18_plus: true,
-        is_21_plus: Math.random() > 0.3 // 70% chance of 21+ verification
-    };
+        
+        const tokenData = await response.json();
+        console.log('🎯 Access token received (length):', tokenData.access_token?.length || 'undefined');
+        
+        return tokenData;
+        
+    } catch (error) {
+        console.error('Network error during token exchange:', error.message);
+        throw new Error(`Failed to connect to Tokn MVP: ${error.message}`);
+    }
 }
+
+/**
+ * Fetch age verification data using access token - REAL IMPLEMENTATION
+ */
+async function fetchAgeVerification(accessToken) {
+    const toknMvpUrl = process.env.TOKN_MVP_URL || 'https://tokn-backend-505250569367.us-east5.run.app';
+    
+    console.log('🔍 Fetching age verification from:', `${toknMvpUrl}/api/oauth/verify`);
+    
+    try {
+        const response = await fetch(`${toknMvpUrl}/api/oauth/verify`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        console.log('📊 Age verification response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Age verification failed:', errorText);
+            throw new Error(`Age verification failed: ${response.status} - ${errorText}`);
+        }
+        
+        const userData = await response.json();
+        console.log('👤 User data received (keys):', Object.keys(userData));
+        
+        // Extract age flags from your Tokn MVP response format
+        const ageFlags = {
+            is_16_plus: userData.is_16_plus || false,
+            is_18_plus: userData.is_18_plus || false,
+            is_21_plus: userData.is_21_plus || false
+        };
+        
+        return {
+            ageFlags: ageFlags,
+            userId: userData.id,
+            verificationStatus: userData.verification_status,
+            verifiedAt: userData.verified_at
+        };
+        
+    } catch (error) {
+        console.error('Network error during age verification:', error.message);
+        throw new Error(`Failed to fetch age verification: ${error.message}`);
+    }
+}
+
 
 /**
  * User verification status endpoint
