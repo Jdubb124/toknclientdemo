@@ -83,17 +83,17 @@ export async function onRequest(context) {
         is_21_plus: userData.is_21_plus
       });
   
-      // Return the age verification data from TOKN MVP
+      // Return the age verification data in the format expected by TOKN SDK
       return new Response(JSON.stringify({
         verified: true,
-        ageFlags: {
+        age_flags: {
           is_16_plus: userData.is_16_plus || false,
           is_18_plus: userData.is_18_plus || false,
           is_21_plus: userData.is_21_plus || false
         },
-        verificationDate: new Date().toISOString(),
-        source: 'tokn-mvp',
-        userId: userData.id || userData.user_id
+        verification_date: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(), // 15 minutes from now
+        user_id: userData.id || userData.user_id
       }), {
         headers: {
           'Content-Type': 'application/json',
