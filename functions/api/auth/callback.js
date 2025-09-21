@@ -35,7 +35,7 @@ export async function onRequest(context) {
       }
   
       // Forward request to your REAL Tokn MVP backend
-      const toknMvpUrl = context.env.TOKN_MVP_URL || 'http://localhost:5001';
+      const toknMvpUrl = context.env.TOKN_MVP_URL || 'https://tokn-backend-505250569367.us-east5.run.app';
       
       const tokenResponse = await fetch(`${toknMvpUrl}/api/oauth/token`, {
         method: 'POST',
