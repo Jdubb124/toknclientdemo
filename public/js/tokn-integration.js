@@ -24,7 +24,7 @@ class ToknIntegration {
             // Initialize the TOKN SDK
             this.tokn = new ToknSDK({
                 clientId: this.config.toknClientId,
-                apiUrl: this.config.toknApiUrl,
+                apiUrl: window.location.origin, // Use our Cloudflare function as the API endpoint
                 authUrl: 'https://toknmvp.web.app',
                 redirectUri: this.config.redirectUri,
                 popupWidth: 500,
