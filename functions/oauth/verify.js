@@ -81,9 +81,18 @@ export async function onRequest(context) {
       console.log('TOKN MVP user data summary:', {
         has_user_data: !!userData,
         userData_keys: Object.keys(userData || {}),
-        is_16_plus: userData.is_16_plus,
-        is_18_plus: userData.is_18_plus,
-        is_21_plus: userData.is_21_plus,
+        user_info: {
+          email: userData.email || userData.user_email || 'not provided',
+          first_name: userData.first_name || userData.firstName || 'not provided',
+          last_name: userData.last_name || userData.lastName || 'not provided',
+          full_name: userData.full_name || userData.name || 'not provided',
+          user_id: userData.id || userData.user_id || 'not provided'
+        },
+        age_verification: {
+          is_16_plus: userData.is_16_plus,
+          is_18_plus: userData.is_18_plus,
+          is_21_plus: userData.is_21_plus
+        },
         raw_values: {
           is_16_plus_type: typeof userData.is_16_plus,
           is_18_plus_type: typeof userData.is_18_plus,
