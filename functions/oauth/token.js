@@ -83,10 +83,12 @@ export async function onRequest(context) {
       }
   
       const tokenData = await tokenResponse.json();
-      console.log('TOKN MVP token data received:', { 
+      console.log('TOKN MVP token data received (full response):', JSON.stringify(tokenData, null, 2));
+      console.log('TOKN MVP token data summary:', { 
         has_access_token: !!tokenData.access_token,
         token_type: tokenData.token_type,
-        expires_in: tokenData.expires_in
+        expires_in: tokenData.expires_in,
+        token_keys: Object.keys(tokenData || {})
       });
   
       // Return the token data from TOKN MVP (OAuth 2.0 standard format)

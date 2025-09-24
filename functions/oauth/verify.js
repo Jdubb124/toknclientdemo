@@ -44,6 +44,7 @@ export async function onRequest(context) {
 
       const accessToken = authHeader.replace('Bearer ', '');
       console.log('Verifying with access token:', accessToken.substring(0, 20) + '...');
+      console.log('Full access token length:', accessToken.length);
   
       // Forward request to your REAL Tokn MVP backend
       const toknMvpUrl = context.env.TOKN_API_URL || 'https://tokn-backend-505250569367.us-east5.run.app';
@@ -76,11 +77,18 @@ export async function onRequest(context) {
       }
   
       const userData = await verifyResponse.json();
-      console.log('TOKN MVP user data received:', {
+      console.log('TOKN MVP user data received (full response):', JSON.stringify(userData, null, 2));
+      console.log('TOKN MVP user data summary:', {
         has_user_data: !!userData,
+        userData_keys: Object.keys(userData || {}),
         is_16_plus: userData.is_16_plus,
         is_18_plus: userData.is_18_plus,
-        is_21_plus: userData.is_21_plus
+        is_21_plus: userData.is_21_plus,
+        raw_values: {
+          is_16_plus_type: typeof userData.is_16_plus,
+          is_18_plus_type: typeof userData.is_18_plus,
+          is_21_plus_type: typeof userData.is_21_plus
+        }
       });
   
       // Return the age verification data in the format expected by TOKN SDK
