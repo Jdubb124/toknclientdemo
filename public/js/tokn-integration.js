@@ -22,6 +22,14 @@ class ToknIntegration {
             await this.waitForToknSDK();
             
             // Initialize the TOKN SDK
+            console.log('TOKN SDK Configuration:', {
+                clientId: this.config.toknClientId,
+                apiUrl: window.location.origin,
+                authUrl: 'https://toknmvp.web.app',
+                redirectUri: this.config.redirectUri,
+                fullConfig: this.config
+            });
+            
             this.tokn = new ToknSDK({
                 clientId: this.config.toknClientId,
                 apiUrl: window.location.origin, // Use our Cloudflare function as the API endpoint
