@@ -5,7 +5,7 @@ export async function onRequest(context) {
       authUrl: context.env.TOKN_AUTH_URL || 'https://toknmvp.web.app',
       environment: context.env.ENVIRONMENT || 'production',
       demoMode: false,
-      redirectUri: `${new URL(context.request.url).origin}/`
+      redirectUri: `${new URL(context.request.url).origin}/api/auth/callback`
     }), {
       headers: {
         'Content-Type': 'application/json',
