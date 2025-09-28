@@ -43,6 +43,14 @@ export async function onRequest(context) {
         console.log('OAuth callback GET params:', { code, code_verifier, client_id, redirect_uri });
       }
       
+      console.log('OAuth callback parameters received:', {
+        code: code ? code.substring(0, 10) + '...' : 'missing',
+        code_verifier: code_verifier ? code_verifier.substring(0, 10) + '...' : 'missing',
+        client_id: client_id,
+        redirect_uri: redirect_uri,
+        method: context.request.method
+      });
+
       if (!code || !code_verifier || !client_id) {
         console.error('Missing required parameters:', { code: !!code, code_verifier: !!code_verifier, client_id: !!client_id });
         return new Response(JSON.stringify({
@@ -124,10 +132,15 @@ export async function onRequest(context) {
   
     } catch (error) {
       console.error('OAuth callback error:', error);
+      console.error('Error stack:', error.stack);
       
       return new Response(JSON.stringify({
-        error: 'Internal server error',
-        message: error.message
+        error: 'callback_error',
+        description: error.message,
+        details: {
+          name: error.name,
+          stack: error.stack
+        }
       }), {
         status: 500,
         headers: { 

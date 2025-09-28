@@ -223,6 +223,7 @@
           authUrl.searchParams.set('code_challenge_method', 'S256');
   
           console.log('ToknSDK: Opening OAuth login popup:', authUrl.toString());
+          console.log('ToknSDK: Authorization redirect_uri:', this.redirectUri);
   
           // Open popup to the frontend OAuth login page
           this.openAuthPopup(authUrl.toString());
@@ -376,6 +377,7 @@
         const codeVerifier = sessionStorage.getItem('tokn_code_verifier');
         
         console.log('ToknSDK: Exchanging code for token');
+        console.log('ToknSDK: Token exchange redirect_uri:', this.redirectUri);
         
         const response = await fetch(`${this.config.apiUrl}/api/auth/callback`, {
           method: 'POST',
