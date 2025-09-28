@@ -15,7 +15,7 @@ export async function onRequest(context) {
       });
     }
   
-    if (context.request.method !== 'POST') {
+    if (context.request.method !== 'POST' && context.request.method !== 'GET') {
       return new Response('Method not allowed', { status: 405 });
     }
 
@@ -26,10 +26,22 @@ export async function onRequest(context) {
     });
   
     try {
-      const body = await context.request.json();
-      console.log('OAuth callback body:', body);
+      let code, code_verifier, client_id, redirect_uri;
       
-      const { code, code_verifier, client_id, redirect_uri } = body;
+      if (context.request.method === 'POST') {
+        // Handle POST request from SDK
+        const body = await context.request.json();
+        console.log('OAuth callback body:', body);
+        ({ code, code_verifier, client_id, redirect_uri } = body);
+      } else if (context.request.method === 'GET') {
+        // Handle GET request from browser redirect
+        const url = new URL(context.request.url);
+        code = url.searchParams.get('code');
+        code_verifier = url.searchParams.get('code_verifier');
+        client_id = url.searchParams.get('client_id');
+        redirect_uri = url.searchParams.get('redirect_uri');
+        console.log('OAuth callback GET params:', { code, code_verifier, client_id, redirect_uri });
+      }
       
       if (!code || !code_verifier || !client_id) {
         console.error('Missing required parameters:', { code: !!code, code_verifier: !!code_verifier, client_id: !!client_id });
