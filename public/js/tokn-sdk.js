@@ -418,8 +418,9 @@
             'Content-Type': 'application/json'
           }
         });
-  
 
+        console.log('ToknSDK: Verification response:', response);
+  
         // If/else statement to handle the response
         if (!response.ok) {
           throw new Error('Verification failed');
