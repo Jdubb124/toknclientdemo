@@ -419,7 +419,7 @@
           }
         });
 
-        console.log('ToknSDK: Verification response:', response);
+        console.log('ToknSDK: Verification response:', response.toString);
   
         // If/else statement to handle the response
         if (!response.ok) {
