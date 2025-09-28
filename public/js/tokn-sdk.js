@@ -411,7 +411,10 @@
         console.log('ToknSDK: Verifying token and getting age flags');
         
         // The Actual API Call to our backend endpoint
-        const response = await fetch(`${this.config.apiUrl}/oauth/verify`, {
+        const verifyUrl = `${this.config.apiUrl}/oauth/verify`;
+        console.log('ToknSDK: Calling verification endpoint:', verifyUrl);
+        
+        const response = await fetch(verifyUrl, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -419,7 +422,8 @@
           }
         });
 
-        console.log('ToknSDK: Verification response:', response.toString);
+        console.log('ToknSDK: Verification response status:', response.status);
+        console.log('ToknSDK: Verification response headers:', Object.fromEntries(response.headers.entries()));
   
         // If/else statement to handle the response
         if (!response.ok) {
