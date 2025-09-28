@@ -266,11 +266,32 @@ class ToknIntegration {
      * Check if age is accessible based on flags
      */
     isAgeAccessible(minAge, ageFlags) {
+        // Ensure ageFlags exists and has the required properties
+        if (!ageFlags || typeof ageFlags !== 'object') {
+            console.warn('isAgeAccessible: Invalid ageFlags provided', ageFlags);
+            return false;
+        }
+
+        // Convert to boolean to handle null/undefined values
+        const flags = {
+            is_16_plus: Boolean(ageFlags.is_16_plus),
+            is_18_plus: Boolean(ageFlags.is_18_plus),
+            is_21_plus: Boolean(ageFlags.is_21_plus)
+        };
+
+        console.log(`Checking age access for ${minAge}+:`, {
+            minAge,
+            flags,
+            result: flags[`is_${minAge}_plus`]
+        });
+
         switch (minAge) {
-            case 16: return ageFlags.is_16_plus;
-            case 18: return ageFlags.is_18_plus;
-            case 21: return ageFlags.is_21_plus;
-            default: return false;
+            case 16: return flags.is_16_plus;
+            case 18: return flags.is_18_plus;
+            case 21: return flags.is_21_plus;
+            default: 
+                console.warn(`Unknown age requirement: ${minAge}`);
+                return false;
         }
     }
 

@@ -410,6 +410,7 @@
       async verifyWithToken(token) {
         console.log('ToknSDK: Verifying token and getting age flags');
         
+        // The Actual API Call to our backend endpoint
         const response = await fetch(`${this.config.apiUrl}/oauth/verify`, {
           method: 'POST',
           headers: {
@@ -418,17 +419,35 @@
           }
         });
   
+
+        // If/else statement to handle the response
         if (!response.ok) {
           throw new Error('Verification failed');
         }
   
+        // the return data from the API call formatted as a JS object
         const data = await response.json();
         
         // Log to console as requested
         console.log('Tokn: Age verification complete');
-        console.log('is_16_plus:', data.age_flags.is_16_plus);
-        console.log('is_18_plus:', data.age_flags.is_18_plus);
-        console.log('is_21_plus:', data.age_flags.is_21_plus);
+        console.log('Full verification response:', data);
+
+        // Log the age flags to the console with detailed info
+        console.log('Age flags received from API:', {
+          is_16_plus: data.age_flags.is_16_plus,
+          is_18_plus: data.age_flags.is_18_plus,
+          is_21_plus: data.age_flags.is_21_plus,
+          types: {
+            is_16_plus: typeof data.age_flags.is_16_plus,
+            is_18_plus: typeof data.age_flags.is_18_plus,
+            is_21_plus: typeof data.age_flags.is_21_plus
+          },
+          truthy_values: {
+            is_16_plus: !!data.age_flags.is_16_plus,
+            is_18_plus: !!data.age_flags.is_18_plus,
+            is_21_plus: !!data.age_flags.is_21_plus
+          }
+        });
   
         // Call success callback
         this.onVerified({

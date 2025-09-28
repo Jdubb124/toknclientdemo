@@ -97,17 +97,54 @@ export async function onRequest(context) {
           is_16_plus_type: typeof userData.is_16_plus,
           is_18_plus_type: typeof userData.is_18_plus,
           is_21_plus_type: typeof userData.is_21_plus
+        },
+        // Debug the actual values more thoroughly
+        debug_values: {
+          is_16_plus_raw: userData.is_16_plus,
+          is_16_plus_stringified: JSON.stringify(userData.is_16_plus),
+          is_16_plus_boolean: Boolean(userData.is_16_plus),
+          is_16_plus_truthy: !!userData.is_16_plus,
+          is_16_plus_strict_true: userData.is_16_plus === true,
+          is_16_plus_strict_string_true: userData.is_16_plus === "true"
         }
       });
   
+      // Convert to proper booleans for frontend
+      // Handle different data types that might come from the database
+      const convertToBoolean = (value) => {
+        if (value === null || value === undefined) return false;
+        if (typeof value === 'boolean') return value;
+        if (typeof value === 'string') {
+          return value.toLowerCase() === 'true' || value === '1';
+        }
+        if (typeof value === 'number') return value !== 0;
+        return Boolean(value);
+      };
+
+      const ageFlags = {
+        is_16_plus: convertToBoolean(userData.is_16_plus),
+        is_18_plus: convertToBoolean(userData.is_18_plus),
+        is_21_plus: convertToBoolean(userData.is_21_plus)
+      };
+      
+      console.log('Converted age flags for frontend:', {
+        original: {
+          is_16_plus: userData.is_16_plus,
+          is_18_plus: userData.is_18_plus,
+          is_21_plus: userData.is_21_plus
+        },
+        converted: ageFlags,
+        types: {
+          is_16_plus: typeof ageFlags.is_16_plus,
+          is_18_plus: typeof ageFlags.is_18_plus,
+          is_21_plus: typeof ageFlags.is_21_plus
+        }
+      });
+
       // Return the age verification data in the format expected by TOKN SDK
       return new Response(JSON.stringify({
         verified: true,
-        age_flags: {
-          is_16_plus: userData.is_16_plus || null,
-          is_18_plus: userData.is_18_plus || null,
-          is_21_plus: userData.is_21_plus || null
-        },
+        age_flags: ageFlags,
         verification_date: new Date().toISOString(),
         expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(), // 15 minutes from now
         user_id: userData.id || userData.user_id
