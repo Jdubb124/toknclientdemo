@@ -562,13 +562,36 @@
   
           const data = await response.json();
           
+          // Convert age flags to proper booleans to handle string values
+          const convertToBoolean = (value) => {
+            if (value === null || value === undefined) return false;
+            if (typeof value === 'boolean') return value;
+            if (typeof value === 'string') {
+              return value.toLowerCase() === 'true' || value === '1';
+            }
+            if (typeof value === 'number') return value !== 0;
+            return Boolean(value);
+          };
+          
+          const ageFlags = {
+            is_16_plus: convertToBoolean(data.age_flags.is_16_plus),
+            is_18_plus: convertToBoolean(data.age_flags.is_18_plus),
+            is_21_plus: convertToBoolean(data.age_flags.is_21_plus)
+          };
+          
+          console.log(`Checking verification for ${minAge}+:`, {
+            minAge,
+            ageFlags,
+            result: ageFlags[`is_${minAge}_plus`]
+          });
+          
           switch (minAge) {
             case 16:
-              return data.age_flags.is_16_plus === true;
+              return ageFlags.is_16_plus;
             case 18:
-              return data.age_flags.is_18_plus === true;
+              return ageFlags.is_18_plus;
             case 21:
-              return data.age_flags.is_21_plus === true;
+              return ageFlags.is_21_plus;
             default:
               return false;
           }
