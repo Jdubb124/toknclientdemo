@@ -30,8 +30,15 @@ export async function onRequest(context) {
       
       if (context.request.method === 'POST') {
         // Handle POST request from SDK
+        console.log('OAuth callback: Processing POST request');
+        console.log('OAuth callback: Content-Type:', context.request.headers.get('content-type'));
+        console.log('OAuth callback: Content-Length:', context.request.headers.get('content-length'));
+        
         const body = await context.request.json();
         console.log('OAuth callback body:', body);
+        console.log('OAuth callback body type:', typeof body);
+        console.log('OAuth callback body keys:', Object.keys(body || {}));
+        
         ({ code, code_verifier, client_id, redirect_uri } = body);
       } else if (context.request.method === 'GET') {
         // Handle GET request from browser redirect

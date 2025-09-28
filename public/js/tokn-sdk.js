@@ -378,6 +378,12 @@
         
         console.log('ToknSDK: Exchanging code for token');
         console.log('ToknSDK: Token exchange redirect_uri:', this.redirectUri);
+        console.log('ToknSDK: Parameters being sent:', {
+          code: code ? code.substring(0, 10) + '...' : 'undefined',
+          code_verifier: codeVerifier ? codeVerifier.substring(0, 10) + '...' : 'undefined',
+          client_id: this.clientId,
+          redirect_uri: this.redirectUri
+        });
         
         const response = await fetch(`${this.config.apiUrl}/api/auth/callback`, {
           method: 'POST',
