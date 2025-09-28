@@ -69,33 +69,18 @@ export async function onRequest(context) {
   
       const tokenData = await tokenResponse.json();
   
-      // Fetch age verification from your Tokn MVP
-      const verifyResponse = await fetch(`${toknMvpUrl}/api/oauth/verify`, {
-        headers: {
-          'Authorization': `Bearer ${tokenData.access_token}`
-        }
-      });
-  
-      if (!verifyResponse.ok) {
-        throw new Error(`Age verification failed: ${verifyResponse.status}`);
-      }
-  
-      const userData = await verifyResponse.json();
-  
-      // Return the REAL age flags from your Tokn MVP
+      // Return the token data from TOKN MVP (OAuth 2.0 standard format)
       return new Response(JSON.stringify({
-        verified: true,
-        ageFlags: {
-          is_16_plus: userData.is_16_plus || false,
-          is_18_plus: userData.is_18_plus || false,
-          is_21_plus: userData.is_21_plus || false
-        },
-        verificationDate: new Date().toISOString(),
-        source: 'tokn-mvp'
+        access_token: tokenData.access_token,
+        token_type: tokenData.token_type || 'Bearer',
+        expires_in: tokenData.expires_in || 3600,
+        scope: tokenData.scope || 'age_verification'
       }), {
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'no-store',
+          'Pragma': 'no-cache'
         }
       });
   
