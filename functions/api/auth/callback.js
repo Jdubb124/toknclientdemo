@@ -39,7 +39,7 @@ export async function onRequest(context) {
         code = url.searchParams.get('code');
         code_verifier = url.searchParams.get('code_verifier');
         client_id = url.searchParams.get('client_id');
-        redirect_uri = url.searchParams.get('redirect_uri');
+        redirect_uri = url.searchParams.get('redirect_uri') || `${url.origin}/api/auth/callback`;
         console.log('OAuth callback GET params:', { code, code_verifier, client_id, redirect_uri });
       }
       
@@ -88,7 +88,21 @@ export async function onRequest(context) {
             redirect_uri: redirect_uri
           }
         });
-        throw new Error(`Token exchange failed: ${errorText}`);
+        
+        return new Response(JSON.stringify({
+          error: 'token_exchange_failed',
+          description: errorText,
+          details: {
+            status: tokenResponse.status,
+            statusText: tokenResponse.statusText
+          }
+        }), {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
       }
   
       const tokenData = await tokenResponse.json();
