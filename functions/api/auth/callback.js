@@ -57,7 +57,8 @@ export async function onRequest(context) {
           grant_type: 'authorization_code',
           code: code,
           client_id: client_id,
-          code_verifier: code_verifier
+          code_verifier: code_verifier,
+          redirect_uri: redirect_uri
         })
       });
   

@@ -376,7 +376,7 @@
         
         console.log('ToknSDK: Exchanging code for token');
         
-        const response = await fetch(`${this.config.apiUrl}/oauth/token`, {
+        const response = await fetch(`${this.config.apiUrl}/api/auth/callback`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

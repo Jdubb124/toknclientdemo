@@ -3,6 +3,8 @@
  * This file integrates with the official TOKN SDK according to the documentation
  */
 
+
+//default functionality for the tokn integration setup values and calls
 class ToknIntegration {
     constructor() {
         this.tokn = null;
@@ -16,7 +18,7 @@ class ToknIntegration {
     async init() {
         try {
             // Fetch configuration from the API
-            this.config = await this.fetchConfig();
+            this.config = await this.fetchConfig(); //grab configuration for class construction defaults.
             
             // Wait for TOKN SDK to be available
             await this.waitForToknSDK();
@@ -29,7 +31,7 @@ class ToknIntegration {
                 redirectUri: this.config.redirectUri,
                 fullConfig: this.config
             });
-            
+            //establish client data for verification in "this.tokn" construction as object
             this.tokn = new ToknSDK({
                 clientId: this.config.toknClientId,
                 apiUrl: window.location.origin, // Use our Cloudflare function as the API endpoint
@@ -154,13 +156,16 @@ class ToknIntegration {
      * Start verification process
      */
     async startVerification() {
+        // capture null or error sdk initiatializations
         if (!this.tokn) {
             this.logToConsole('❌ TOKN SDK not initialized');
-            return;
+            return; //return non value to startVerification
         }
         
         this.logToConsole('🚀 Starting age verification...');
+        // try to verify
         try {
+            // attempt to call the verify method through current sdk configuration - the method is defined in the SDK that invokes it
             await this.tokn.verify();
         } catch (error) {
             this.handleVerificationError(error);
