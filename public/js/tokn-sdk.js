@@ -635,7 +635,16 @@
             return { verified: false };
           }
   
-          return await response.json();
+          const data = await response.json();
+          
+          // Convert snake_case to camelCase to match callback format
+          return {
+            verified: data.verified,
+            ageFlags: data.age_flags,
+            verificationDate: data.verification_date,
+            expiresAt: data.expires_at,
+            userId: data.user_id
+          };
         } catch (error) {
           console.error('Error getting status:', error);
           return { verified: false };
