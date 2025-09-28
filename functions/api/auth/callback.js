@@ -64,6 +64,18 @@ export async function onRequest(context) {
   
       if (!tokenResponse.ok) {
         const errorText = await tokenResponse.text();
+        console.error('TOKN MVP token exchange failed:', {
+          status: tokenResponse.status,
+          statusText: tokenResponse.statusText,
+          error: errorText,
+          requestData: {
+            grant_type: 'authorization_code',
+            code: code ? code.substring(0, 10) + '...' : 'missing',
+            client_id: client_id,
+            code_verifier: code_verifier ? code_verifier.substring(0, 10) + '...' : 'missing',
+            redirect_uri: redirect_uri
+          }
+        });
         throw new Error(`Token exchange failed: ${errorText}`);
       }
   

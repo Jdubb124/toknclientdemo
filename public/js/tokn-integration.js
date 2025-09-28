@@ -36,7 +36,7 @@ class ToknIntegration {
                 clientId: this.config.toknClientId,
                 apiUrl: window.location.origin, // Use our Cloudflare function as the API endpoint
                 authUrl: 'https://toknmvp.web.app',
-                redirectUri: this.config.redirectUri,
+                redirectUri: this.config.redirectUri, // Use the redirect URI from config
                 popupWidth: 500,
                 popupHeight: 700,
                 timeout: 300000,
