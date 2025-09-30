@@ -130,24 +130,9 @@ export async function onRequest(context) {
       };
 
       const ageFlags = {
-        is_16_plus: convertToBoolean(
-          userData.is_16_plus ?? 
-          userData.age_flags?.is_16_plus ?? 
-          userData.ageFlags?.is_16_plus ?? 
-          false
-        ),
-        is_18_plus: convertToBoolean(
-          userData.is_18_plus ?? 
-          userData.age_flags?.is_18_plus ?? 
-          userData.ageFlags?.is_18_plus ?? 
-          false
-        ),
-        is_21_plus: convertToBoolean(
-          userData.is_21_plus ?? 
-          userData.age_flags?.is_21_plus ?? 
-          userData.ageFlags?.is_21_plus ?? 
-          false
-        )
+        is_16_plus: convertToBoolean(userData.age_flags?.is_16_plus ?? userData.is_16_plus ?? false),
+        is_18_plus: convertToBoolean(userData.age_flags?.is_18_plus ?? userData.is_18_plus ?? false),
+        is_21_plus: convertToBoolean(userData.age_flags?.is_21_plus ?? userData.is_21_plus ?? false)
       };
       
       // Add debug log
