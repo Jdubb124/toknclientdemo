@@ -123,7 +123,17 @@ class ToknIntegration {
     handleVerificationSuccess(data) {
         this.logToConsole('🎉 Age verification successful!');
         this.logToConsole(`📊 Age flags: 16+:${data.ageFlags.is_16_plus}, 18+:${data.ageFlags.is_18_plus}, 21+:${data.ageFlags.is_21_plus}`);
-        
+        console.log('DEBUG: Raw data received:', data);
+console.log('DEBUG: ageFlags type:', typeof data.ageFlags);
+console.log('DEBUG: ageFlags keys:', Object.keys(data.ageFlags || {}));
+console.log('DEBUG: Each flag:', {
+    '16_raw': data.ageFlags.is_16_plus,
+    '16_type': typeof data.ageFlags.is_16_plus,
+    '18_raw': data.ageFlags.is_18_plus,
+    '18_type': typeof data.ageFlags.is_18_plus,
+    '21_raw': data.ageFlags.is_21_plus,
+    '21_type': typeof data.ageFlags.is_21_plus
+});
         // Update status display
         this.updateStatusDisplay(data.ageFlags);
         
