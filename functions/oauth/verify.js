@@ -108,7 +108,15 @@ export async function onRequest(context) {
           is_16_plus_strict_string_true: userData.is_16_plus === "true"
         }
       });
-  
+      console.log('PRE-CONVERSION Values:', {
+        is_16_plus_raw: userData.is_16_plus,
+        is_16_plus_type: typeof userData.is_16_plus,
+        is_18_plus_raw: userData.is_18_plus,
+        is_18_plus_type: typeof userData.is_18_plus,
+        is_21_plus_raw: userData.is_21_plus,
+        is_21_plus_type: typeof userData.is_21_plus,
+        full_userData: JSON.stringify(userData)
+      });
       // Convert to proper booleans for frontend
       // Handle different data types that might come from the database
       const convertToBoolean = (value) => {
@@ -122,10 +130,32 @@ export async function onRequest(context) {
       };
 
       const ageFlags = {
-        is_16_plus: convertToBoolean(userData.is_16_plus),
-        is_18_plus: convertToBoolean(userData.is_18_plus),
-        is_21_plus: convertToBoolean(userData.is_21_plus)
+        is_16_plus: convertToBoolean(
+          userData.is_16_plus ?? 
+          userData.age_flags?.is_16_plus ?? 
+          userData.ageFlags?.is_16_plus ?? 
+          false
+        ),
+        is_18_plus: convertToBoolean(
+          userData.is_18_plus ?? 
+          userData.age_flags?.is_18_plus ?? 
+          userData.ageFlags?.is_18_plus ?? 
+          false
+        ),
+        is_21_plus: convertToBoolean(
+          userData.is_21_plus ?? 
+          userData.age_flags?.is_21_plus ?? 
+          userData.ageFlags?.is_21_plus ?? 
+          false
+        )
       };
+      
+      // Add debug log
+      console.log('FINAL Converted age flags:', {
+        is_16_plus: ageFlags.is_16_plus,
+        is_18_plus: ageFlags.is_18_plus,
+        is_21_plus: ageFlags.is_21_plus
+      });
       
       console.log('Converted age flags for frontend:', {
         original: {
